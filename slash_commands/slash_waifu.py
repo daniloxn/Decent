@@ -1,0 +1,83 @@
+from discord.ext import commands
+import discord
+from discord import app_commands
+import random
+import mysql.connector
+
+
+class SlashWaifu(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+        self.used_ids_woman = set()  
+
+    def Wai(self):
+        try:
+            # Fazendo conexão com o banco de dados.
+            conexao = mysql.connector.connect(
+                host='localhost',
+                database='descent',
+                user='root',
+                password=''
+            )
+            cursor = conexao.cursor()
+            cursor.execute("SELECT id FROM fem_pers;")
+            ids_disponiveis = [row[0] for row in cursor.fetchall()]
+
+            # Se não houver IDs disponíveis, retorna None
+            if not ids_disponiveis:
+                return None
+
+            # Resetando a lista se todos os IDs já foram usados
+            if len(self.used_ids_woman) >= len(ids_disponiveis):
+                self.used_ids_woman.clear()
+
+            # Pegando um ID aleatório que ainda não foi usado
+            ids_restantes = list(set(ids_disponiveis) - self.used_ids_woman)
+            rnd_id = random.choice(ids_restantes)
+
+            # Adicionando o ID à lista de usados
+            self.used_ids_woman.add(rnd_id)
+
+            # Buscando a waifu correspondente ao ID
+            cursor.execute('SELECT nome, anime, image FROM fem_pers WHERE id = %s', (rnd_id,))
+            result = cursor.fetchone()
+
+            # Fechando a conexão
+            cursor.close()
+            conexao.close()
+
+            return result
+        except mysql.connector.Error as err:
+            print(f"Erro no banco de dados: {err}")
+            return None
+    
+    @app_commands.command(name='waifu', description="Pega uma imagem aleatoria de alguma personagem de anime feminina")
+    async def wa(self, interaction: discord.Interaction):
+
+        waifu_data = self.Wai()
+
+        if not waifu_data:
+            await interaction.response.send_message("Nenhuma waifu disponível no momento! 😭")
+            return
+        
+        nome, anime, img = waifu_data
+
+        embed = discord.Embed(
+            title=nome,
+            description=anime,
+            colour=0xFFC0CB
+        )
+        embed.set_image(url=img)
+        embed.set_footer(text="Provide by `descent`", icon_url="https://i.pinimg.com/736x/71/65/d4/7165d489402cbbf7138189ddf57ab3ad.jpg")
+        await interaction.response.send_message(embed=embed)
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.client.tree.add_command(self.wa)
+        await self.client.tree.sync()
+
+    
+
+async def setup(client):
+    await client.add_cog(SlashWaifu(client))
