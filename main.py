@@ -38,5 +38,5 @@ async def on_ready():
 
 
 #client.run(token)
-client.run("MTMzMzE5ODQzMjM0NDc0MDAzMQ.GFk7xN.BK1RKFexkzZ1cl9QZOUVQSeELxECoto6mYDtlY")
+client.run("Seu token")
 
