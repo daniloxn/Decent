@@ -21,12 +21,6 @@ async def on_ready():
                 await client.load_extension(f'slash_commands.{file[:-3]}')
             except Exception as e:
                 print(f"Erro ao carregar {file}: {e}")
-    for file in os.listdir(path="nsfw"):
-        if file.endswith(".py"):
-            try:
-                await client.load_extension(f'nsfw.{file[:-3]}')
-            except Exception as e:
-                print(f"Erro ao carregar {file}: {e}")
     for file in os.listdir(path="moderacao"):
         if file.endswith(".py"):
             try:
@@ -44,5 +38,5 @@ async def on_ready():
 
 
 #client.run(token)
-client.run("Seu token")
+client.run("MTMzMzE5ODQzMjM0NDc0MDAzMQ.GFk7xN.BK1RKFexkzZ1cl9QZOUVQSeELxECoto6mYDtlY")
 

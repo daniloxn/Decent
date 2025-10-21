@@ -1,25 +1,32 @@
 import discord
 from discord.ext import commands
-import pathlib
-import textwrap
+import os
+from dotenv import load_dotenv
 import google.generativeai as genai
-GOOGLE_API_KEY="AIzaSyAaNw5gknrUC3pHX9PnT3Rb7YuNiHNH6zs"
+
+# Carregar chave do .env
+load_dotenv()
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+# Configurar modelo Gemini
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 chat = model.start_chat(history=[])
-def Resposta(*args):
-    response = chat.send_message(args)
+
+# Função de resposta da IA
+def Resposta(mensagem: str):
+    response = chat.send_message(mensagem)
     return response.text
-    
+
 
 class Ia(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-
     @commands.command()
     async def ia(self, ctx, *, arg):
-        await ctx.send(f"{Resposta(arg)}")
+        await ctx.send(Resposta(arg))
+
 
 async def setup(client):
     await client.add_cog(Ia(client))
